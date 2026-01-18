@@ -1,0 +1,55 @@
+{
+  "meta": {
+    "scan_run_id": "scan_demo_001",
+    "tenant_id": "tenant_demo",
+    "scan_time_epoch": 1767642824,
+    "scanner_version": "vault-connector-0.1"
+  },
+  "endpoint": {
+    "host": "vault.internal",
+    "port": 8200,
+    "is_public": false
+  },
+  "surface": "vault",
+  "benchmark": {
+    "version": "pqreadiness-mvpplus-1.1.0",
+    "thresholds": {
+      "cert_expiry_days_critical": 0,
+      "cert_expiry_days_high": 14,
+      "cert_expiry_days_medium": 30,
+      "rsa_min_bits": 2048,
+      "repo_library_max_age_days_high": 365,
+      "repo_library_max_age_days_medium": 730,
+      "kms_key_max_age_days_medium": 730,
+      "kms_key_max_age_days_high": 1460
+    }
+  },
+  "vault": {
+    "mount": "transit/",
+    "keys": [
+      {
+        "name": "db-key",
+        "type": "aes256-gcm96",
+        "rotation": {
+          "enabled": false
+        },
+        "ttl_seconds": 0,
+        "tags": {
+          "system": "db"
+        }
+      },
+      {
+        "name": "api-key",
+        "type": "rsa-2048",
+        "rotation": {
+          "enabled": true
+        },
+        "ttl_seconds": 2592000,
+        "tags": {
+          "owner": "bob",
+          "system": "api"
+        }
+      }
+    ]
+  }
+}

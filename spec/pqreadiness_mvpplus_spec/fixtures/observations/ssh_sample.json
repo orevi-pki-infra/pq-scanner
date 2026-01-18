@@ -1,0 +1,45 @@
+{
+  "meta": {
+    "scan_run_id": "scan_demo_001",
+    "tenant_id": "tenant_demo",
+    "scan_time_epoch": 1767642824,
+    "scanner_version": "ssh-scanner-0.1"
+  },
+  "endpoint": {
+    "host": "ssh.example.com",
+    "port": 22,
+    "is_public": true
+  },
+  "surface": "ssh",
+  "benchmark": {
+    "version": "pqreadiness-mvpplus-1.1.0",
+    "thresholds": {
+      "cert_expiry_days_critical": 0,
+      "cert_expiry_days_high": 14,
+      "cert_expiry_days_medium": 30,
+      "rsa_min_bits": 2048,
+      "repo_library_max_age_days_high": 365,
+      "repo_library_max_age_days_medium": 730,
+      "kms_key_max_age_days_medium": 730,
+      "kms_key_max_age_days_high": 1460
+    }
+  },
+  "ssh": {
+    "host_key_algorithms": [
+      "ssh-rsa",
+      "ssh-ed25519"
+    ],
+    "host_keys": [
+      {
+        "type": "RSA",
+        "bits": 1024,
+        "fingerprint": "SHA256:abc"
+      },
+      {
+        "type": "ED25519",
+        "bits": 256,
+        "fingerprint": "SHA256:def"
+      }
+    ]
+  }
+}

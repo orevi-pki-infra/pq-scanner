@@ -1,0 +1,13 @@
+{
+  "version": "v1",
+  "name": "EOL Runtime Identifiers",
+  "updated_at": "2026-01-05",
+  "runtimes": [
+    "python2",
+    "java7",
+    "java8-eol",
+    "dotnetcore2",
+    "node10",
+    "node12"
+  ]
+}

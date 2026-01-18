@@ -1,0 +1,14 @@
+[
+  {
+    "rule_id": "DEP_001",
+    "severity": "high"
+  },
+  {
+    "rule_id": "DEP_002",
+    "severity": "high"
+  },
+  {
+    "rule_id": "DEP_003",
+    "severity": "medium"
+  }
+]

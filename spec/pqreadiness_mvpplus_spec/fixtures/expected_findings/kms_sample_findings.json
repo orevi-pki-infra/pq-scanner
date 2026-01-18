@@ -1,0 +1,14 @@
+[
+  {
+    "rule_id": "KMS_001",
+    "severity": "high"
+  },
+  {
+    "rule_id": "KMS_002",
+    "severity": "medium"
+  },
+  {
+    "rule_id": "KMS_003",
+    "severity": "medium"
+  }
+]

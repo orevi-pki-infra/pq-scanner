@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/observation-ssh.json",
+  "type": "object",
+  "required": [
+    "ssh"
+  ],
+  "properties": {
+    "ssh": {
+      "type": "object",
+      "required": [
+        "host_key_algorithms",
+        "host_keys"
+      ],
+      "properties": {
+        "host_key_algorithms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "host_keys": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "type",
+              "bits"
+            ],
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "bits": {
+                "type": "integer"
+              },
+              "fingerprint": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,10 @@
+[
+  {
+    "rule_id": "SSH_001",
+    "severity": "high"
+  },
+  {
+    "rule_id": "SSH_002",
+    "severity": "high"
+  }
+]

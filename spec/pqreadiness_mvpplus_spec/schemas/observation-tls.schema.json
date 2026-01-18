@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/observation-tls.json",
+  "type": "object",
+  "required": [
+    "tls",
+    "pki"
+  ],
+  "properties": {
+    "tls": {
+      "type": "object",
+      "required": [
+        "versions_supported",
+        "cipher_suites_offered"
+      ],
+      "properties": {
+        "versions_supported": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "cipher_suites_offered": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "pki": {
+      "type": "object",
+      "required": [
+        "leaf"
+      ],
+      "properties": {
+        "leaf": {
+          "type": "object",
+          "required": [
+            "fingerprint_sha256",
+            "not_after_epoch",
+            "not_after",
+            "signature_algorithm",
+            "public_key_type",
+            "public_key_bits",
+            "days_to_expiry"
+          ],
+          "properties": {
+            "fingerprint_sha256": {
+              "type": "string"
+            },
+            "not_after_epoch": {
+              "type": "integer"
+            },
+            "not_after": {
+              "type": "string"
+            },
+            "signature_algorithm": {
+              "type": "string"
+            },
+            "public_key_type": {
+              "type": "string"
+            },
+            "public_key_bits": {
+              "type": "integer"
+            },
+            "days_to_expiry": {
+              "type": "integer"
+            }
+          },
+          "additionalProperties": true
+        },
+        "chain": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "fingerprint_sha256": {
+                "type": "string"
+              },
+              "signature_algorithm": {
+                "type": "string"
+              },
+              "is_ca": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

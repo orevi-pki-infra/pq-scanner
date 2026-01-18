@@ -1,0 +1,555 @@
+{
+  "benchmark_version": "pqreadiness-mvpplus-1.1.0",
+  "name": "PQ Readiness MVP+ (TLS + KMS/Vault + Repo Dependencies + SSH)",
+  "published_at": "2026-01-05",
+  "surfaces": [
+    "tls",
+    "kms",
+    "vault",
+    "repo",
+    "ssh"
+  ],
+  "scoring_models": {
+    "security_posture": {
+      "start": 100,
+      "severity_penalties": {
+        "critical": 25,
+        "high": 12,
+        "medium": 6,
+        "low": 2
+      },
+      "confidence_multiplier_range": [
+        0.6,
+        1.0
+      ],
+      "floor": 0
+    },
+    "pq_readiness": {
+      "start": 100,
+      "penalties": {
+        "pq_blocker": {
+          "critical": 20,
+          "high": 10,
+          "medium": 5,
+          "low": 2
+        },
+        "agility_gap": {
+          "high": 10,
+          "medium": 5,
+          "low": 2
+        }
+      },
+      "floor": 0
+    }
+  },
+  "thresholds": {
+    "cert_expiry_days_critical": 0,
+    "cert_expiry_days_high": 14,
+    "cert_expiry_days_medium": 30,
+    "rsa_min_bits": 2048,
+    "repo_library_max_age_days_high": 365,
+    "repo_library_max_age_days_medium": 730,
+    "kms_key_max_age_days_medium": 730,
+    "kms_key_max_age_days_high": 1460
+  },
+  "denylists": {
+    "tls_versions_blocked": [
+      "TLS1.0",
+      "TLS1.1"
+    ],
+    "tls_cipher_suites_blocked": [
+      "TLS_RSA_WITH_3DES_EDE_CBC_SHA",
+      "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA",
+      "TLS_RSA_WITH_RC4_128_SHA"
+    ],
+    "ssh_hostkey_algos_blocked": [
+      "ssh-rsa",
+      "ssh-dss"
+    ],
+    "sha1_sig_algos": [
+      "sha1WithRSAEncryption",
+      "sha1WithECDSA"
+    ],
+    "repo_eol_runtimes": [
+      "python2",
+      "java7",
+      "java8-eol",
+      "dotnetcore2",
+      "node10",
+      "node12"
+    ]
+  },
+  "rules": [
+    {
+      "rule_id": "TLS_001",
+      "surface": "tls",
+      "category": "protocol_posture",
+      "title": "TLS 1.0 enabled",
+      "severity_default": "critical",
+      "pq_tag": "pq_blocker",
+      "logic": {
+        "any_of": [
+          {
+            "path": "$.tls.versions_supported[*]",
+            "op": "contains",
+            "value": "TLS1.0"
+          }
+        ]
+      },
+      "remediation": "Disable TLS 1.0; require >= TLS 1.2 (prefer TLS 1.3).",
+      "evidence_keys": [
+        "tls.versions_supported",
+        "endpoint.host",
+        "endpoint.port"
+      ]
+    },
+    {
+      "rule_id": "TLS_002",
+      "surface": "tls",
+      "category": "protocol_posture",
+      "title": "TLS 1.1 enabled",
+      "severity_default": "high",
+      "pq_tag": "pq_blocker",
+      "logic": {
+        "any_of": [
+          {
+            "path": "$.tls.versions_supported[*]",
+            "op": "contains",
+            "value": "TLS1.1"
+          }
+        ]
+      },
+      "remediation": "Disable TLS 1.1; require >= TLS 1.2 (prefer TLS 1.3).",
+      "evidence_keys": [
+        "tls.versions_supported",
+        "endpoint.host",
+        "endpoint.port"
+      ]
+    },
+    {
+      "rule_id": "TLS_003",
+      "surface": "tls",
+      "category": "protocol_posture",
+      "title": "TLS 1.3 not supported",
+      "severity_default": "medium",
+      "pq_tag": "agility_gap",
+      "logic": {
+        "all_of": [
+          {
+            "path": "$.tls.versions_supported[*]",
+            "op": "contains",
+            "value": "TLS1.2"
+          },
+          {
+            "path": "$.tls.versions_supported[*]",
+            "op": "not_contains",
+            "value": "TLS1.3"
+          }
+        ]
+      },
+      "remediation": "Plan TLS 1.3 enablement and validate client compatibility.",
+      "evidence_keys": [
+        "tls.versions_supported",
+        "endpoint.host",
+        "endpoint.port"
+      ]
+    },
+    {
+      "rule_id": "TLS_010",
+      "surface": "tls",
+      "category": "cipher_kex_posture",
+      "title": "RSA key exchange supported (no forward secrecy)",
+      "severity_default": "high",
+      "pq_tag": "pq_signal",
+      "logic": {
+        "any_of": [
+          {
+            "path": "$.tls.cipher_suites_offered[*]",
+            "op": "regex_any",
+            "value": "^TLS_RSA_"
+          }
+        ]
+      },
+      "remediation": "Prefer ECDHE/TLS 1.3 suites; remove RSA key exchange suites.",
+      "evidence_keys": [
+        "tls.cipher_suites_offered",
+        "endpoint.host",
+        "endpoint.port"
+      ]
+    },
+    {
+      "rule_id": "TLS_012",
+      "surface": "tls",
+      "category": "cipher_kex_posture",
+      "title": "Weak cipher suites offered (denylist match)",
+      "severity_default": "critical",
+      "pq_tag": "pq_signal",
+      "logic": {
+        "any_of": [
+          {
+            "path": "$.tls.cipher_suites_offered[*]",
+            "op": "intersects_denylist",
+            "denylist": "tls_cipher_suites_blocked"
+          }
+        ]
+      },
+      "remediation": "Remove denylisted cipher suites from server configuration.",
+      "evidence_keys": [
+        "tls.cipher_suites_offered",
+        "endpoint.host",
+        "endpoint.port"
+      ]
+    },
+    {
+      "rule_id": "PKI_001",
+      "surface": "tls",
+      "category": "cert_lifecycle",
+      "title": "Expired certificate",
+      "severity_default": "critical",
+      "pq_tag": "pq_blocker",
+      "logic": {
+        "all_of": [
+          {
+            "path": "$.pki.leaf.not_after_epoch",
+            "op": "lt",
+            "value_path": "$.meta.scan_time_epoch"
+          }
+        ]
+      },
+      "remediation": "Renew immediately; investigate renewal/automation failure.",
+      "evidence_keys": [
+        "pki.leaf.fingerprint_sha256",
+        "pki.leaf.not_after",
+        "endpoint.host",
+        "endpoint.port"
+      ]
+    },
+    {
+      "rule_id": "PKI_002",
+      "surface": "tls",
+      "category": "cert_lifecycle",
+      "title": "Certificate expires within 14 days",
+      "severity_default": "high",
+      "pq_tag": "agility_gap",
+      "logic": {
+        "all_of": [
+          {
+            "path": "$.pki.leaf.days_to_expiry",
+            "op": "lte",
+            "value": 14
+          },
+          {
+            "path": "$.pki.leaf.days_to_expiry",
+            "op": "gt",
+            "value": 0
+          }
+        ]
+      },
+      "remediation": "Renew/rotate now; implement automation and ownership tagging.",
+      "evidence_keys": [
+        "pki.leaf.fingerprint_sha256",
+        "pki.leaf.days_to_expiry",
+        "endpoint.host",
+        "endpoint.port"
+      ]
+    },
+    {
+      "rule_id": "PKI_003",
+      "surface": "tls",
+      "category": "cert_lifecycle",
+      "title": "Certificate expires within 30 days",
+      "severity_default": "medium",
+      "pq_tag": "agility_gap",
+      "logic": {
+        "all_of": [
+          {
+            "path": "$.pki.leaf.days_to_expiry",
+            "op": "lte",
+            "value": 30
+          },
+          {
+            "path": "$.pki.leaf.days_to_expiry",
+            "op": "gt",
+            "value": 14
+          }
+        ]
+      },
+      "remediation": "Schedule renewal; tighten lifecycle controls and alerting.",
+      "evidence_keys": [
+        "pki.leaf.fingerprint_sha256",
+        "pki.leaf.days_to_expiry",
+        "endpoint.host",
+        "endpoint.port"
+      ]
+    },
+    {
+      "rule_id": "CRYPTO_001",
+      "surface": "tls",
+      "category": "signature_strength",
+      "title": "Leaf uses SHA-1 signature",
+      "severity_default": "critical",
+      "pq_tag": "pq_blocker",
+      "logic": {
+        "any_of": [
+          {
+            "path": "$.pki.leaf.signature_algorithm",
+            "op": "in_denylist",
+            "denylist": "sha1_sig_algos"
+          }
+        ]
+      },
+      "remediation": "Reissue certificate with SHA-256+ signature algorithm.",
+      "evidence_keys": [
+        "pki.leaf.signature_algorithm",
+        "pki.leaf.fingerprint_sha256",
+        "endpoint.host",
+        "endpoint.port"
+      ]
+    },
+    {
+      "rule_id": "CRYPTO_002",
+      "surface": "tls",
+      "category": "key_strength",
+      "title": "Leaf RSA key size below 2048 bits",
+      "severity_default": "critical",
+      "pq_tag": "pq_blocker",
+      "logic": {
+        "all_of": [
+          {
+            "path": "$.pki.leaf.public_key_type",
+            "op": "eq",
+            "value": "RSA"
+          },
+          {
+            "path": "$.pki.leaf.public_key_bits",
+            "op": "lt",
+            "value_path": "$.benchmark.thresholds.rsa_min_bits"
+          }
+        ]
+      },
+      "remediation": "Reissue with RSA >= 2048 (or approved alternative).",
+      "evidence_keys": [
+        "pki.leaf.public_key_type",
+        "pki.leaf.public_key_bits",
+        "pki.leaf.fingerprint_sha256"
+      ]
+    },
+    {
+      "rule_id": "KMS_001",
+      "surface": "kms",
+      "category": "rotation_policy",
+      "title": "Key rotation disabled / not configured",
+      "severity_default": "high",
+      "pq_tag": "agility_gap",
+      "logic": {
+        "any_of": [
+          {
+            "path": "$.kms.keys[*].rotation.enabled",
+            "op": "eq_any",
+            "value": false
+          }
+        ]
+      },
+      "remediation": "Enable rotation (policy-based interval) and assign ownership tags.",
+      "evidence_keys": [
+        "kms.provider",
+        "kms.keys[].key_id",
+        "kms.keys[].rotation.enabled",
+        "kms.keys[].tags"
+      ]
+    },
+    {
+      "rule_id": "KMS_002",
+      "surface": "kms",
+      "category": "key_age",
+      "title": "Key age exceeds policy threshold",
+      "severity_default": "medium",
+      "pq_tag": "agility_gap",
+      "logic": {
+        "any_of": [
+          {
+            "path": "$.kms.keys[*].age_days",
+            "op": "gte",
+            "value_path": "$.benchmark.thresholds.kms_key_max_age_days_medium"
+          }
+        ]
+      },
+      "remediation": "Rotate/replace aged keys; validate dependent workloads.",
+      "evidence_keys": [
+        "kms.keys[].key_id",
+        "kms.keys[].age_days",
+        "kms.keys[].usage"
+      ]
+    },
+    {
+      "rule_id": "KMS_003",
+      "surface": "kms",
+      "category": "ownership",
+      "title": "Key owner/critical tags missing",
+      "severity_default": "medium",
+      "pq_tag": "pq_blocker",
+      "logic": {
+        "any_of": [
+          {
+            "path": "$.kms.keys[*].tags.owner",
+            "op": "missing_or_empty"
+          },
+          {
+            "path": "$.kms.keys[*].tags.system",
+            "op": "missing_or_empty"
+          }
+        ]
+      },
+      "remediation": "Tag keys with owner and system/service; enforce tagging policy.",
+      "evidence_keys": [
+        "kms.keys[].key_id",
+        "kms.keys[].tags"
+      ]
+    },
+    {
+      "rule_id": "VAULT_001",
+      "surface": "vault",
+      "category": "engines_policy",
+      "title": "Vault rotation/TTL posture missing for crypto keys",
+      "severity_default": "high",
+      "pq_tag": "agility_gap",
+      "logic": {
+        "any_of": [
+          {
+            "path": "$.vault.keys[*].rotation.enabled",
+            "op": "eq_any",
+            "value": false
+          },
+          {
+            "path": "$.vault.keys[*].ttl_seconds",
+            "op": "missing_or_zero"
+          }
+        ]
+      },
+      "remediation": "Configure rotation/TTL where applicable; document ownership and usage.",
+      "evidence_keys": [
+        "vault.mount",
+        "vault.keys[].name",
+        "vault.keys[].rotation.enabled",
+        "vault.keys[].ttl_seconds"
+      ]
+    },
+    {
+      "rule_id": "DEP_001",
+      "surface": "repo",
+      "category": "platform_eol",
+      "title": "EOL runtime/platform detected",
+      "severity_default": "high",
+      "pq_tag": "pq_blocker",
+      "logic": {
+        "any_of": [
+          {
+            "path": "$.repo.runtimes[*].id",
+            "op": "intersects_denylist",
+            "denylist": "repo_eol_runtimes"
+          }
+        ]
+      },
+      "remediation": "Upgrade runtime/platform to supported versions; validate crypto libraries and TLS stacks.",
+      "evidence_keys": [
+        "repo.repo_id",
+        "repo.runtimes",
+        "repo.evidence_paths"
+      ]
+    },
+    {
+      "rule_id": "DEP_002",
+      "surface": "repo",
+      "category": "crypto_libs",
+      "title": "Crypto library is outdated beyond baseline",
+      "severity_default": "high",
+      "pq_tag": "agility_gap",
+      "logic": {
+        "any_of": [
+          {
+            "path": "$.repo.crypto_dependencies[*].age_days",
+            "op": "gte",
+            "value_path": "$.benchmark.thresholds.repo_library_max_age_days_high"
+          }
+        ]
+      },
+      "remediation": "Upgrade crypto libraries; standardize providers; remove pinned legacy versions.",
+      "evidence_keys": [
+        "repo.crypto_dependencies[].name",
+        "repo.crypto_dependencies[].version",
+        "repo.crypto_dependencies[].age_days"
+      ]
+    },
+    {
+      "rule_id": "DEP_003",
+      "surface": "repo",
+      "category": "complexity",
+      "title": "Multiple crypto stacks/providers in same service",
+      "severity_default": "medium",
+      "pq_tag": "agility_gap",
+      "logic": {
+        "any_of": [
+          {
+            "path": "$.repo.crypto_dependencies_summary.distinct_stacks",
+            "op": "gte",
+            "value": 2
+          }
+        ]
+      },
+      "remediation": "Converge on a standard crypto provider stack per runtime; document exceptions.",
+      "evidence_keys": [
+        "repo.crypto_dependencies_summary",
+        "repo.crypto_dependencies"
+      ]
+    },
+    {
+      "rule_id": "SSH_001",
+      "surface": "ssh",
+      "category": "hostkey_algorithms",
+      "title": "Deprecated SSH host key algorithm in use",
+      "severity_default": "high",
+      "pq_tag": "pq_signal",
+      "logic": {
+        "any_of": [
+          {
+            "path": "$.ssh.host_key_algorithms[*]",
+            "op": "intersects_denylist",
+            "denylist": "ssh_hostkey_algos_blocked"
+          }
+        ]
+      },
+      "remediation": "Enable modern host keys (e.g., ed25519) and disable deprecated algorithms per policy.",
+      "evidence_keys": [
+        "ssh.host_key_algorithms",
+        "endpoint.host",
+        "endpoint.port"
+      ]
+    },
+    {
+      "rule_id": "SSH_002",
+      "surface": "ssh",
+      "category": "key_strength",
+      "title": "SSH RSA host key below 2048 bits",
+      "severity_default": "high",
+      "pq_tag": "pq_signal",
+      "logic": {
+        "any_of": [
+          {
+            "path": "$.ssh.host_keys[*]",
+            "op": "any_object_match",
+            "value": {
+              "type": "RSA",
+              "bits_lt": 2048
+            }
+          }
+        ]
+      },
+      "remediation": "Regenerate SSH host keys with approved sizes/types; standardize host key policies.",
+      "evidence_keys": [
+        "ssh.host_keys",
+        "endpoint.host",
+        "endpoint.port"
+      ]
+    }
+  ]
+}

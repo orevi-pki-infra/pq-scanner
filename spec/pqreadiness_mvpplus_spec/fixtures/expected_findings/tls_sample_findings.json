@@ -1,0 +1,30 @@
+[
+  {
+    "rule_id": "TLS_001",
+    "severity": "critical"
+  },
+  {
+    "rule_id": "TLS_003",
+    "severity": "medium"
+  },
+  {
+    "rule_id": "TLS_010",
+    "severity": "high"
+  },
+  {
+    "rule_id": "TLS_012",
+    "severity": "critical"
+  },
+  {
+    "rule_id": "PKI_001",
+    "severity": "critical"
+  },
+  {
+    "rule_id": "CRYPTO_001",
+    "severity": "critical"
+  },
+  {
+    "rule_id": "CRYPTO_002",
+    "severity": "critical"
+  }
+]

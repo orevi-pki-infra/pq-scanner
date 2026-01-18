@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/observation-kms.json",
+  "type": "object",
+  "required": [
+    "kms"
+  ],
+  "properties": {
+    "kms": {
+      "type": "object",
+      "required": [
+        "provider",
+        "keys"
+      ],
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": [
+            "aws_kms",
+            "azure_key_vault",
+            "gcp_kms",
+            "other"
+          ]
+        },
+        "keys": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "key_id",
+              "created_epoch",
+              "age_days",
+              "usage",
+              "rotation"
+            ],
+            "properties": {
+              "key_id": {
+                "type": "string"
+              },
+              "created_epoch": {
+                "type": "integer"
+              },
+              "age_days": {
+                "type": "integer"
+              },
+              "usage": {
+                "type": "string",
+                "enum": [
+                  "encrypt_decrypt",
+                  "sign_verify",
+                  "wrap_unwrap",
+                  "other"
+                ]
+              },
+              "rotation": {
+                "type": "object",
+                "required": [
+                  "enabled"
+                ],
+                "properties": {
+                  "enabled": {
+                    "type": "boolean"
+                  },
+                  "period_days": {
+                    "type": "integer"
+                  }
+                },
+                "additionalProperties": true
+              },
+              "tags": {
+                "type": "object",
+                "properties": {
+                  "owner": {
+                    "type": "string"
+                  },
+                  "system": {
+                    "type": "string"
+                  },
+                  "environment": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": true
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

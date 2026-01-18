@@ -1,0 +1,9 @@
+{
+  "version": "v1",
+  "name": "SSH Host Key Algorithm Denylist",
+  "updated_at": "2026-01-05",
+  "algorithms": [
+    "ssh-rsa",
+    "ssh-dss"
+  ]
+}

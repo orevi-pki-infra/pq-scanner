@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/observation-envelope.json",
+  "type": "object",
+  "required": [
+    "meta",
+    "endpoint",
+    "surface",
+    "benchmark"
+  ],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": [
+        "scan_run_id",
+        "scan_time_epoch",
+        "tenant_id"
+      ],
+      "properties": {
+        "scan_run_id": {
+          "type": "string"
+        },
+        "tenant_id": {
+          "type": "string"
+        },
+        "scan_time_epoch": {
+          "type": "integer"
+        },
+        "scanner_version": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "endpoint": {
+      "type": "object",
+      "required": [
+        "host",
+        "port"
+      ],
+      "properties": {
+        "host": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer"
+        },
+        "is_public": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "surface": {
+      "type": "string",
+      "enum": [
+        "tls",
+        "kms",
+        "vault",
+        "repo",
+        "ssh"
+      ]
+    },
+    "benchmark": {
+      "type": "object",
+      "required": [
+        "version",
+        "thresholds"
+      ],
+      "properties": {
+        "version": {
+          "type": "string"
+        },
+        "thresholds": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

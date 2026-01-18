@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/finding.json",
+  "type": "object",
+  "required": [
+    "finding_id",
+    "tenant_id",
+    "scan_run_id",
+    "benchmark_version",
+    "surface",
+    "rule_id",
+    "severity",
+    "status",
+    "first_seen_epoch",
+    "last_seen_epoch",
+    "pq_tag",
+    "score_impact_security",
+    "score_impact_pq",
+    "evidence"
+  ],
+  "properties": {
+    "finding_id": {
+      "type": "string"
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "scan_run_id": {
+      "type": "string"
+    },
+    "benchmark_version": {
+      "type": "string"
+    },
+    "surface": {
+      "type": "string",
+      "enum": [
+        "tls",
+        "kms",
+        "vault",
+        "repo",
+        "ssh"
+      ]
+    },
+    "rule_id": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "acknowledged",
+        "in_progress",
+        "resolved",
+        "false_positive"
+      ]
+    },
+    "first_seen_epoch": {
+      "type": "integer"
+    },
+    "last_seen_epoch": {
+      "type": "integer"
+    },
+    "asset": {
+      "type": "object",
+      "properties": {
+        "asset_id": {
+          "type": "string"
+        },
+        "asset_type": {
+          "type": "string"
+        },
+        "identifier": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "endpoint": {
+      "type": "object",
+      "properties": {
+        "endpoint_id": {
+          "type": "string"
+        },
+        "host": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer"
+        },
+        "is_public": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "pq_tag": {
+      "type": "string",
+      "enum": [
+        "none",
+        "pq_signal",
+        "pq_blocker",
+        "agility_gap"
+      ]
+    },
+    "score_impact_security": {
+      "type": "integer"
+    },
+    "score_impact_pq": {
+      "type": "integer"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    "remediation": {
+      "type": "string"
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "references": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": true
+}
